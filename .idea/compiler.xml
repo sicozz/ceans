@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="21" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ceans.common" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.common.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.common.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.core" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.core.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.core.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.market-data-ingestion" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.market-data-ingestion.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.market-data-ingestion.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.core" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.core.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.core.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.service" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.service.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="java-multimodule-template.service.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.core" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.core.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.core.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.service" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.service.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="strict-development-env.service.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+    </option>
+  </component>
+</project>

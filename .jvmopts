@@ -1,0 +1,30 @@
+# JVM optimization flags for Java 21
+# GC tuning
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=200
+-XX:+UseStringDeduplication
+-XX:+OptimizeStringConcat
+
+# Performance optimizations
+-XX:+UseCompressedOops
+-XX:+UseCompressedClassPointers
+-XX:+TieredCompilation
+-XX:TieredStopAtLevel=4
+
+# Security and stability
+-Djava.security.egd=file:/dev/./urandom
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=./heapdump.hprof
+
+# Monitoring
+-XX:+UnlockDiagnosticVMOptions
+-XX:+LogVMOutput
+-XX:+TraceClassLoading=false
+
+# Preview features (Java 21)
+--enable-preview
+
+# System properties
+-Dfile.encoding=UTF-8
+-Duser.timezone=UTC
+-Djava.awt.headless=true

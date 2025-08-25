@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- Suppress false positives for test dependencies -->
+    <suppress>
+        <notes><![CDATA[
+        Suppress test-only dependencies that may have known vulnerabilities
+        but don't affect production code.
+        ]]></notes>
+        <filePath regex="true">.*test.*</filePath>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+
+    <!-- Example suppression for a specific library -->
+    <suppress>
+        <notes><![CDATA[
+        Example suppression for a specific vulnerability that has been assessed
+        and determined to not be applicable to this project's usage.
+        ]]></notes>
+        <gav regex="true">^org\.springframework.*</gav>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+</suppressions>

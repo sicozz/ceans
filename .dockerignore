@@ -1,0 +1,40 @@
+# Build artifacts
+build/
+.gradle/
+**/build/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Version control
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# CI/CD
+.github/
+
+# Test reports
+**/test-results/
+**/reports/
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*.swo
+
+# Docker
+Dockerfile*
+docker-compose*.yml

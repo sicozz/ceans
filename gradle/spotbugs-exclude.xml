@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude test classes from certain checks -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+    
+    <!-- Exclude generated classes -->
+    <Match>
+        <Class name="~.*\.generated\..*"/>
+    </Match>
+    
+    <!-- Exclude specific SpotBugs patterns that are too noisy -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    
+    <!-- Allow System.out in test classes -->
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="DM_EXIT,NP_DEREFERENCE_OF_READLINE_VALUE"/>
+    </Match>
+    
+    <!-- Exclude Spring Boot applications -->
+    <Match>
+        <Class name="~.*Application"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    
+    <!-- Exclude utility class constructor issues -->
+    <Match>
+        <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+    </Match>
+    
+    <!-- Exclude dependency injection false positives -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>
