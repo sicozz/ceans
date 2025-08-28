@@ -19,6 +19,9 @@ dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         mavenCentral()
+        maven {
+            url = uri("https://packages.confluent.io/maven/")
+        }
     }
 }
 
@@ -32,3 +35,4 @@ develocity {
 }
 
 include("market-data-ingestion")
+include("synthetic-data-generation")

@@ -4,7 +4,31 @@ plugins {
 
 description = "Crypto exchange market data ingestion"
 
+// Configure default main class for 'gradle run'
+application {
+    mainClass.set("producer.TickerProducer")
+}
+
+// Create custom tasks for running producer and consumer
+tasks.register('runProducer', JavaExec) {
+    group = 'application'
+    description = 'Run the TickerProducer'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'producer.TickerProducer'
+}
+
+tasks.register('runConsumer', JavaExec) {
+    group = 'application'
+    description = 'Run the TickerConsumer'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'consumer.TickerConsumer'
+}
+
 dependencies {
+    // Project dependencies
     implementation(project(":common"))
-    implementation("org.apache.kafka:kafka-clients:4.0.0")
+    
+    // External dependencies using version catalog
+    implementation(libs.bundles.kafka)
+    implementation(libs.logback.classic)
 }

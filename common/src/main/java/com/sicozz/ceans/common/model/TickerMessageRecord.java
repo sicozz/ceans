@@ -3,7 +3,7 @@
  */
 package com.sicozz.ceans.common.model;
 
-public record TickerMessage(
+public record TickerMessageRecord(
         String type,
         long sequence,
         String product_id,

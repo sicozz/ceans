@@ -14,6 +14,9 @@
       <module name="ceans.market-data-ingestion" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
       <module name="ceans.market-data-ingestion.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
       <module name="ceans.market-data-ingestion.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.synthetic-data-generation" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.synthetic-data-generation.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
+      <module name="ceans.synthetic-data-generation.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
       <module name="java-multimodule-template.core" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
       <module name="java-multimodule-template.core.main" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />
       <module name="java-multimodule-template.core.test" options="-Werror -Xlint:all -Xlint:-processing -parameters --enable-preview" />

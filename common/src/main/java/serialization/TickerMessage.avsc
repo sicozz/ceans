@@ -1,0 +1,93 @@
+{
+  "type": "record",
+  "name": "TickerMessage",
+  "namespace": "com.sicozz.ceans.common.model",
+  "doc": "Ticker message schema for cryptocurrency market data",
+  "fields": [
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Message type"
+    },
+    {
+      "name": "sequence",
+      "type": "long",
+      "doc": "Sequence number"
+    },
+    {
+      "name": "product_id",
+      "type": "string",
+      "doc": "Product identifier"
+    },
+    {
+      "name": "price",
+      "type": "string",
+      "doc": "Current price"
+    },
+    {
+      "name": "open_24h",
+      "type": "string",
+      "doc": "Opening price in the last 24 hours"
+    },
+    {
+      "name": "volume_24h",
+      "type": "string",
+      "doc": "Trading volume in the last 24 hours"
+    },
+    {
+      "name": "low_24h",
+      "type": "string",
+      "doc": "Lowest price in the last 24 hours"
+    },
+    {
+      "name": "high_24h",
+      "type": "string",
+      "doc": "Highest price in the last 24 hours"
+    },
+    {
+      "name": "volume_30d",
+      "type": "string",
+      "doc": "Trading volume in the last 30 days"
+    },
+    {
+      "name": "best_bid",
+      "type": "string",
+      "doc": "Best bid price"
+    },
+    {
+      "name": "best_bid_size",
+      "type": "string",
+      "doc": "Best bid size"
+    },
+    {
+      "name": "best_ask",
+      "type": "string",
+      "doc": "Best ask price"
+    },
+    {
+      "name": "best_ask_size",
+      "type": "string",
+      "doc": "Best ask size"
+    },
+    {
+      "name": "side",
+      "type": "string",
+      "doc": "Trade side"
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "doc": "Timestamp"
+    },
+    {
+      "name": "trade_id",
+      "type": "long",
+      "doc": "Trade identifier"
+    },
+    {
+      "name": "last_size",
+      "type": "string",
+      "doc": "Size of the last trade"
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 plugins {
     id("java")
-    id("com.diffplug.spotless") version "7.0.0.BETA2"
+    alias(libs.plugins.spotless)
     id("checkstyle")
-    id("com.github.spotbugs") version "6.0.26"
+    alias(libs.plugins.spotbugs)
     id("jacoco")
     id("jacoco-report-aggregation")
-    id("org.owasp.dependencycheck") version "10.0.4"
+    alias(libs.plugins.dependency.check)
+    alias(libs.plugins.avro) apply false
 }
 
 allprojects {
@@ -62,6 +63,7 @@ subprojects {
     }
 
     dependencies {
+        // Common test dependencies for all subprojects
         testImplementation("org.junit.jupiter:junit-jupiter:5.11.2")
         testImplementation("org.assertj:assertj-core:3.26.3")
         testImplementation("org.mockito:mockito-core:5.14.2")

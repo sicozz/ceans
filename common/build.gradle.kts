@@ -1,18 +1,41 @@
 plugins {
     id("java-library")
+    alias(libs.plugins.avro)
 }
 
 description = "Core business logic and domain models"
 
 dependencies {
-    api("com.google.guava:guava:33.3.1-jre")
-    api("org.slf4j:slf4j-api:2.0.16")
-    api("jakarta.validation:jakarta.validation-api:3.1.0")
+    // API dependencies - exposed to consumers
+    api(libs.guava)
+    api(libs.slf4j.api)
+    api(libs.jakarta.validation)
+    api(libs.avro)
 
-    implementation("org.apache.commons:commons-lang3:3.17.0")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.18.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.0")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.18.0")
+    // Implementation dependencies - internal to this module
+    implementation(libs.commons.lang3)
+    implementation(libs.bundles.jackson)
+    implementation(libs.kafka.clients)
 
-    testImplementation("ch.qos.logback:logback-classic:1.5.8")
+    // Test dependencies
+    testImplementation(libs.logback.classic)
+}
+
+// Configure Avro plugin
+avro {
+    fieldVisibility.set("PRIVATE")
+}
+
+// Configure custom generateAvroJava task
+tasks.named("generateAvroJava", com.github.davidmc24.gradle.plugin.avro.GenerateAvroJavaTask::class) {
+    source("src/main/java/serialization")
+}
+
+// Skip code quality checks for now due to generated Avro files
+tasks.checkstyleMain {
+    enabled = false
+}
+
+tasks.spotbugsMain {
+    enabled = false
 }
