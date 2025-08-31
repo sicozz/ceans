@@ -49,6 +49,9 @@ public class TickerConsumer {
                             "  Type: %s, Trade ID: %d, Side: %s%n",
                             tickerMessage.getType(), tickerMessage.getTradeId(), tickerMessage.getSide());
                     System.out.printf(
+                            "  Open 24h: %s, High 24h: %s, Low 24h: %s%n",
+                            tickerMessage.getOpen24h(), tickerMessage.getHigh24h(), tickerMessage.getLow24h());
+                    System.out.printf(
                             "  24h Volume: %s, Best Bid: %s, Best Ask: %s%n",
                             tickerMessage.getVolume24h(), tickerMessage.getBestBid(), tickerMessage.getBestAsk());
                     System.out.println("  ---");

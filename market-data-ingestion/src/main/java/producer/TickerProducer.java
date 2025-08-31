@@ -17,8 +17,11 @@ import datageneration.TickerGenerator;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 
 public class TickerProducer {
-    private static final int MESSAGE_COUNT = 10;
-    private static final long BASE_TRADE_ID = 2000L;
+    private static final int MESSAGE_COUNT = 100;
+    private static final double INIT_PRICE = 50000.00;
+    private static final double INIT_SIZE = 1.00;
+    private static final double DRIFT = 0.0001;
+    private static final double VOLATILITY = 0.05;
 
     public static void main(String[] args) {
         Properties properties = new Properties();
@@ -30,7 +33,8 @@ public class TickerProducer {
 
         Producer<String, TickerMessage> producer = new KafkaProducer<>(properties);
 
-        TickerGenerator generator = new TickerGenerator(BASE_TRADE_ID, 0);
+        TickerGenerator generator = new TickerGenerator(INIT_PRICE, INIT_SIZE, DRIFT, VOLATILITY);
+        generator.initializeHistory(INIT_PRICE, INIT_SIZE);
 
         for (int i = 0; i < MESSAGE_COUNT; i++) {
             TickerMessage tickerMessage = generator.next();

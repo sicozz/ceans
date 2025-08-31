@@ -95,3 +95,7 @@ Thumbs.db
 logs/
 temp/
 tmp/
+
+# Coding agents
+CLAUDE.md
+./claude
