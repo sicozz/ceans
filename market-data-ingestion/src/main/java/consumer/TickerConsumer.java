@@ -41,24 +41,33 @@ public class TickerConsumer {
                 ConsumerRecords<String, TickerMessage> records = consumer.poll(Duration.ofMillis(POLL_TIMEOUT_MS));
 
                 for (ConsumerRecord<String, TickerMessage> record : records) {
-                    TickerMessage tickerMessage = record.value();
+                    TickerMessage msg = record.value();
                     System.out.printf(
-                            "Received ticker message: Product=%s, Price=%s, Sequence=%d%n",
-                            tickerMessage.getProductId(), tickerMessage.getPrice(), tickerMessage.getSequence());
-                    System.out.printf(
-                            "  Type: %s, Trade ID: %d, Side: %s%n",
-                            tickerMessage.getType(), tickerMessage.getTradeId(), tickerMessage.getSide());
-                    System.out.printf(
-                            "  Open 24h: %s, High 24h: %s, Low 24h: %s%n",
-                            tickerMessage.getOpen24h(), tickerMessage.getHigh24h(), tickerMessage.getLow24h());
-                    System.out.printf(
-                            "  24h Volume: %s, Best Bid: %s, Best Ask: %s%n",
-                            tickerMessage.getVolume24h(), tickerMessage.getBestBid(), tickerMessage.getBestAsk());
-                    System.out.println("  ---");
+                            "{product: %s, price: %s, seq: %d, type: %s, tradeId: %d, side: %s, "
+                                    + "open24h: %s, high24h: %s, low24h: %s, vol24h: %s, vol30d: %s, "
+                                    + "bestBid: %s, bestBidSize: %s, bestAsk: %s, bestAskSize: %s, "
+                                    + "time: %s, lastSize: %s}%n",
+                            msg.getProductId(),
+                            msg.getPrice(),
+                            msg.getSequence(),
+                            msg.getType(),
+                            msg.getTradeId(),
+                            msg.getSide(),
+                            msg.getOpen24h(),
+                            msg.getHigh24h(),
+                            msg.getLow24h(),
+                            msg.getVolume24h(),
+                            msg.getVolume30d(),
+                            msg.getBestBid(),
+                            msg.getBestBidSize(),
+                            msg.getBestAsk(),
+                            msg.getBestAskSize(),
+                            msg.getTime(),
+                            msg.getLastSize());
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error consuming messages: " + e.getMessage());
+            System.err.printf("Error consuming messages: %s%n", e.getMessage());
             e.printStackTrace();
         } finally {
             consumer.close();
