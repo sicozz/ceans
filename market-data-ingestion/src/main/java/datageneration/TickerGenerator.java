@@ -5,7 +5,7 @@ package datageneration;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.exp;
-import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -17,50 +17,135 @@ import java.util.Random;
 import com.sicozz.ceans.common.model.TickerMessage;
 
 public final class TickerGenerator {
-    private static final double DAYS_PER_MONTH = 30;
-    private static final double HALF = 0.5;
-    private static final double TIME_DELTA = 1.0 / MarketHistory.COINBASE_TICKS_PER_DAY;
-    private static final long START_SEQUENCE = 10000000000L;
-    private static final long START_TRADE_ID = 100000000L;
-    private static final double BASE_DAILY_VOLUME = 250000.00;
-    private static final double BASE_VOLUME_MULTIPLIER = 1.0;
-    private static final double BASE_VOLUME_VOLATILITY_SENSIBILITY = 1.8;
-    private static final double SPREAD_BASIS_POINTS = 2.0;
-    private static final double MIN_TRADE_SIZE = 0.001;
-    private static final double CRYPTO_MARKET_SHAPE = 1.5;
 
+    public record MarketDynamics(double drift, double volatility) {}
+
+    public record VolumeSettings(
+            double baseDailyVolume, double baseVolumeMultiplier, double baseVolumeVolatilitySensitivity) {}
+
+    public record TradeSettings(
+            double spreadBasisPoints, double minimumTradeSize, double cryptoMarketShape, double timeDelta) {}
+
+    public record SequenceSettings(long initialSequence, long initialTradeId) {}
+
+    public static class Builder {
+        private Double initialPrice;
+        private Double initialSize;
+        private MarketDynamics marketDynamics;
+        private VolumeSettings volumeSettings;
+        private TradeSettings tradeSettings;
+        private SequenceSettings sequenceSettings;
+
+        public Builder withInitialValues(double price, double size) {
+            this.initialPrice = price;
+            this.initialSize = size;
+            return this;
+        }
+
+        public Builder withMarketDynamics(double marketDrift, double marketVolatility) {
+            this.marketDynamics = new MarketDynamics(marketDrift, marketVolatility);
+            return this;
+        }
+
+        public Builder withVolumeSettings(
+                double dailyVolume, double volumeMultiplier, double volumeVolatilitySensitivity) {
+            this.volumeSettings = new VolumeSettings(dailyVolume, volumeMultiplier, volumeVolatilitySensitivity);
+            return this;
+        }
+
+        public Builder withTradeSettings(
+                double spreadPoints, double minTradeSize, double marketShape, double deltaTime) {
+            this.tradeSettings = new TradeSettings(spreadPoints, minTradeSize, marketShape, deltaTime);
+            return this;
+        }
+
+        public Builder withSequenceSettings(long initialSequence, long initialTradeId) {
+            this.sequenceSettings = new SequenceSettings(initialSequence, initialTradeId);
+            return this;
+        }
+
+        public TickerGenerator build() {
+            if (initialPrice == null
+                    || initialSize == null
+                    || marketDynamics == null
+                    || volumeSettings == null
+                    || tradeSettings == null
+                    || sequenceSettings == null) {
+                throw new IllegalStateException("All parameters must be set before building TickerGenerator");
+            }
+
+            return new TickerGenerator(
+                    initialPrice, initialSize, marketDynamics, volumeSettings, tradeSettings, sequenceSettings);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    private static final double HALF = 0.5;
+    private static final double DAYS_PER_MONTH = 30.0;
+    private static final String TICKER_TYPE = "ticker";
+    private static final String PRODUCT_ID = "BTC-USD";
+    private static final String[] TRADE_SIDES = {"buy", "sell"};
+    private static final double PRICE_FORMAT_PRECISION = 2;
+    private static final double SIZE_FORMAT_PRECISION = 8;
+    private static final double SPREAD_VOLATILITY = 0.3;
+    private static final double MAX_VOLUME_MULTIPLIER = 5.0;
+
+    private final double baseDailyVolume;
+    private final double baseVolumeMultiplier;
+    private final double baseVolumeVolatilitySensitivity;
+    private final double spreadBasisPoints;
+    private final double minimumTradeSize;
+    private final double cryptoMarketShape;
+    private final double timeDelta;
     private final double drift;
     private final double volatility;
     private final MarketHistory history;
     private final Random random;
+
     private long sequence;
     private long tradeId;
 
-    public TickerGenerator(final double initPrice, final double initSize, final double drift, final double volatility) {
-        if (initPrice <= 0) {
+    TickerGenerator(
+            final double initialPrice,
+            final double initialSize,
+            final MarketDynamics marketDynamics,
+            final VolumeSettings volumeSettings,
+            final TradeSettings tradeSettings,
+            final SequenceSettings sequenceSettings) {
+        if (initialPrice <= 0) {
             throw new IllegalArgumentException("Start price must be positive");
         }
-        if (initSize <= 0) {
+        if (initialSize <= 0) {
             throw new IllegalArgumentException("Start price must be positive");
         }
-        if (!Double.isFinite(drift)) {
+        if (!Double.isFinite(marketDynamics.drift())) {
             throw new IllegalArgumentException("Drift must be finite");
         }
-        if (volatility < 0 || !Double.isFinite(volatility)) {
+        if (marketDynamics.volatility() < 0 || !Double.isFinite(marketDynamics.volatility())) {
             throw new IllegalArgumentException("Volatility must be non-negative and finite");
         }
 
-        this.drift = drift;
-        this.volatility = volatility;
+        this.drift = marketDynamics.drift();
+        this.volatility = marketDynamics.volatility();
+        this.baseDailyVolume = volumeSettings.baseDailyVolume();
+        this.baseVolumeMultiplier = volumeSettings.baseVolumeMultiplier();
+        this.baseVolumeVolatilitySensitivity = volumeSettings.baseVolumeVolatilitySensitivity();
+        this.spreadBasisPoints = tradeSettings.spreadBasisPoints();
+        this.minimumTradeSize = tradeSettings.minimumTradeSize();
+        this.cryptoMarketShape = tradeSettings.cryptoMarketShape();
+        this.timeDelta = tradeSettings.timeDelta();
+        this.sequence = sequenceSettings.initialSequence();
+        this.tradeId = sequenceSettings.initialTradeId();
         this.history = new MarketHistory();
         this.random = new Random();
-        sequence = START_SEQUENCE;
-        tradeId = START_TRADE_ID;
     }
 
-    public void initializeHistory(double initPrice, double initSize) {
-        double lastPrice = initPrice;
-        double lastSize = initSize;
+    public void initializeHistory(double initialPrice, double initialSize) {
+        double lastPrice = initialPrice;
+        double lastSize = initialSize;
         for (int i = 0; i < MarketHistory.COINBASE_TICKS_PER_DAY; i++) {
             double price = lastPrice * generatePriceMovement();
             double size = lastSize * generateLastSize();
@@ -78,32 +163,32 @@ public final class TickerGenerator {
         final ZonedDateTime time = now.atZone(ZoneOffset.UTC);
         final double volume24h = generateVolume24h(time.getHour(), time.getMinute(), priceMovement);
         history.record(price, size);
-        final double baseSpread = (SPREAD_BASIS_POINTS / 1000) * price;
-        final double halfSpread = baseSpread * exp(random.nextGaussian(0, 0.3)) * HALF;
+        final double baseSpread = (spreadBasisPoints / 1000) * price;
+        final double halfSpread = baseSpread * exp(random.nextGaussian(0, SPREAD_VOLATILITY)) * HALF;
         final double bestBid = price - halfSpread;
         final double bestAsk = price + halfSpread;
         final double bestBidSize = generateLastSize();
         final double bestAskSize = generateLastSize();
-        final String side = random.nextDouble() < HALF ? "buy" : "sell";
+        final String side = TRADE_SIDES[random.nextInt(TRADE_SIDES.length)];
 
         final TickerMessage message = TickerMessage.newBuilder()
-                .setType("ticker")
+                .setType(TICKER_TYPE)
                 .setSequence(sequence)
-                .setProductId("BTC-USD")
-                .setPrice(String.format("%.2f", price))
-                .setOpen24h(String.format("%.2f", history.open24h()))
-                .setVolume24h(String.format("%.2f", volume24h))
-                .setLow24h(String.format("%.2f", history.low24h()))
-                .setHigh24h(String.format("%.2f", history.high24h()))
-                .setVolume30d(String.format("%.2f", generateVolume30d(volume24h)))
-                .setBestBid(String.format("%.2f", bestBid))
-                .setBestBidSize(String.format("%.8f", bestBidSize))
-                .setBestAsk(String.format("%.2f", bestAsk))
-                .setBestAskSize(String.format("%.8f", bestAskSize))
+                .setProductId(PRODUCT_ID)
+                .setPrice(formatPrice(price))
+                .setOpen24h(formatPrice(history.open24h()))
+                .setVolume24h(formatPrice(volume24h))
+                .setLow24h(formatPrice(history.low24h()))
+                .setHigh24h(formatPrice(history.high24h()))
+                .setVolume30d(formatPrice(generateVolume30d(volume24h)))
+                .setBestBid(formatPrice(bestBid))
+                .setBestBidSize(formatSize(bestBidSize))
+                .setBestAsk(formatPrice(bestAsk))
+                .setBestAskSize(formatSize(bestAskSize))
                 .setSide(side)
                 .setTime(now.toString())
                 .setTradeId(tradeId)
-                .setLastSize(String.format("%.8f", generateLastSize()))
+                .setLastSize(formatSize(size))
                 .build();
 
         sequence++;
@@ -112,10 +197,18 @@ public final class TickerGenerator {
         return message;
     }
 
+    private String formatPrice(double value) {
+        return String.format("%." + (int) PRICE_FORMAT_PRECISION + "f", value);
+    }
+
+    private String formatSize(double value) {
+        return String.format("%." + (int) SIZE_FORMAT_PRECISION + "f", value);
+    }
+
     private double generatePriceMovement() {
         final double randomShock = random.nextGaussian();
-        final double driftComponent = (drift - (pow(volatility, 2) * HALF)) * TIME_DELTA;
-        final double diffusionComponent = volatility * sqrt(TIME_DELTA) * randomShock;
+        final double driftComponent = (drift - (pow(volatility, 2) * HALF)) * timeDelta;
+        final double diffusionComponent = volatility * sqrt(timeDelta) * randomShock;
         final double movement = exp(driftComponent + diffusionComponent);
         return movement;
     }
@@ -126,7 +219,7 @@ public final class TickerGenerator {
         while (massProbability == 0.0) {
             massProbability = random.nextDouble();
         }
-        return MIN_TRADE_SIZE * pow((1 - massProbability), (-1 / CRYPTO_MARKET_SHAPE));
+        return minimumTradeSize * pow((1 - massProbability), (-1 / cryptoMarketShape));
     }
 
     private double generateVolume24h(double hour, double minute, double priceChange) {
@@ -135,10 +228,10 @@ public final class TickerGenerator {
         final double intraDayPattern =
                 1 + 0.5 * pow(normalizedTime, 2); // Highest at opening and closing. Lowest at noon
         final double volatilityMultiplier =
-                BASE_VOLUME_MULTIPLIER + BASE_VOLUME_VOLATILITY_SENSIBILITY + pow(abs(priceChange), 0.8);
-        final double capedVolatilityMultiplier = max(volatilityMultiplier, 5.0);
+                baseVolumeMultiplier + baseVolumeVolatilitySensitivity + pow(abs(priceChange), 0.8);
+        final double capedVolatilityMultiplier = min(volatilityMultiplier, MAX_VOLUME_MULTIPLIER);
         final double randomFactor = (1 - volatility) + volatility * 2 * random.nextDouble();
-        return BASE_DAILY_VOLUME * intraDayPattern * capedVolatilityMultiplier * randomFactor;
+        return baseDailyVolume * intraDayPattern * capedVolatilityMultiplier * randomFactor;
     }
 
     private double generateVolume30d(double todaysVolume) {
@@ -146,18 +239,12 @@ public final class TickerGenerator {
         return todaysVolume * DAYS_PER_MONTH * randomFactor;
     }
 
-    // ODO: Documentation on Initialize and then always pop before insert
-    private final class MarketHistory {
-        private static final int COINBASE_TICKS_PER_DAY = 17280; // Every 5000ms (5s) = 24*60*60 / 5
-        private final double[] priceHistory;
+    private static final class MarketHistory {
+        private static final int COINBASE_TICKS_PER_DAY = 17280;
+
+        private final double[] priceHistory = new double[COINBASE_TICKS_PER_DAY];
         private double lastPrice;
         private int tickNumber;
-
-        private MarketHistory() {
-            priceHistory = new double[COINBASE_TICKS_PER_DAY];
-            lastPrice = 0;
-            tickNumber = 0;
-        }
 
         private void record(double price, double size) {
             lastPrice = price;
@@ -174,20 +261,28 @@ public final class TickerGenerator {
         }
 
         private double high24h() {
+            return findMaxPrice();
+        }
+
+        private double low24h() {
+            return findMinPrice();
+        }
+
+        private double findMaxPrice() {
             double max = 0;
-            for (int i = 0; i < COINBASE_TICKS_PER_DAY; i++) {
-                if (priceHistory[i] > max) {
-                    max = priceHistory[i];
+            for (double price : priceHistory) {
+                if (price > max) {
+                    max = price;
                 }
             }
             return max;
         }
 
-        private double low24h() {
-            double min = 0;
-            for (int i = 0; i < COINBASE_TICKS_PER_DAY; i++) {
-                if (priceHistory[i] > min) {
-                    min = priceHistory[i];
+        private double findMinPrice() {
+            double min = Double.MAX_VALUE;
+            for (double price : priceHistory) {
+                if (price < min && price > 0) {
+                    min = price;
                 }
             }
             return min;
