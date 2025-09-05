@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.sicozz.ceans.common.model.TickerMessage;
 
@@ -103,7 +104,7 @@ public final class TickerGenerator {
     private final double drift;
     private final double volatility;
     private final MarketHistory history;
-    private final Random random;
+    private final ThreadLocalRandom random;
 
     private long sequence;
     private long tradeId;
@@ -140,10 +141,13 @@ public final class TickerGenerator {
         this.sequence = sequenceSettings.initialSequence();
         this.tradeId = sequenceSettings.initialTradeId();
         this.history = new MarketHistory();
-        this.random = new Random();
+        this.random = ThreadLocalRandom.current();
+
+        // Initialize price history automatically
+        initializeHistory(initialPrice, initialSize);
     }
 
-    public void initializeHistory(double initialPrice, double initialSize) {
+    private void initializeHistory(double initialPrice, double initialSize) {
         double lastPrice = initialPrice;
         double lastSize = initialSize;
         for (int i = 0; i < MarketHistory.COINBASE_TICKS_PER_DAY; i++) {
